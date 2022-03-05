@@ -15,22 +15,17 @@ if interface != "none":
     while i < len(interface):
         print(interface[i])
         subprocess.call("cat /dev/null > /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'MTU = 9216' >> /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'TYPE=Ethernet' >> /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'PROXY_METHOD=none' >> /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'BROWSER_ONLY=no' >> /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'DEVICE='"+ interface[i] + ">> /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'NAME=slave'" + str(j) + ">> /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'BOOTPROTO=none' >> /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'SLAVE=yes' >> /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'NM_CONTROLLED=yes' >> /home/kanakin/testbond/" + interface[i], shell=True)
-        subprocess.call("echo 'ONBOOT=yes' >> /home/kanakin/testbond/" + interface[i], shell=True)
-         #print (interface[i])
-        
+        with open("/home/kanakin/testbond/" + interface[i], "a") as fint:
+            fint.write("MTU = 9216" + "\n" + "TYPE=Ethernet" + "\n" + "PROXY_METHOD=none" + "\n" + "BROWSER_ONLY=no" + "\n" + "DEVICE=" + interface[i] + "\n" + "NAME=slave" + str(j) + "\n" + "BOOTPROTO=none" + "\n" + "SLAVE=yes" + "\n" + "NM_CONTROLLED=yes" + "\n" + "ONBOOT=yes" + "\n")
+
         if (j == 1  or j == 2):
-            subprocess.call("echo 'MASTER=bond0' >> /home/kanakin/testbond/" + interface[i], shell=True)
+            with open("/home/kanakin/testbond/" + interface[i], "a") as fint:
+                fint.writelines("MASTER=bond0")
+
         else:
-            subprocess.call("echo 'MASTER=bond1' >> /home/kanakin/testbond/" + interface[i], shell=True)
+            with open("/home/kanakin/testbond/" + interface[i], "a") as fint:
+                fint.writelines("MASTER=bond1   ")
+
 
         if j == 2:
             subprocess.call("cat /dev/null > /home/kanakin/testbond/bond0", shell=True) 
