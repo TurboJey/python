@@ -14,30 +14,36 @@ if interface != "none":
     j = 1
     while i < len(interface):
         print(interface[i])
-        subprocess.call("cat /dev/null > /home/kanakin/testbond/" + interface[i], shell=True)
+        if os.path.exists("/home/kanakin/testbond/" + interface[i]) == False:
+            file = open("/home/kanakin/testbond/" + interface[i], "w")
+            file.close()
+        else:
+            file = open("/home/kanakin/testbond/" + interface[i], "w")
+            file.write("")
+            file.close()
+        #subprocess.call("cat /dev/null > /home/kanakin/testbond/" + interface[i], shell=True)
         with open("/home/kanakin/testbond/" + interface[i], "a") as fint:
             fint.write("MTU = 9216" + "\n" + "TYPE=Ethernet" + "\n" + "PROXY_METHOD=none" + "\n" + "BROWSER_ONLY=no" + "\n" + "DEVICE=" + interface[i] + "\n" + "NAME=slave" + str(j) + "\n" + "BOOTPROTO=none" + "\n" + "SLAVE=yes" + "\n" + "NM_CONTROLLED=yes" + "\n" + "ONBOOT=yes" + "\n")
 
         if (j == 1  or j == 2):
             with open("/home/kanakin/testbond/" + interface[i], "a") as fint:
-                fint.writelines("MASTER=bond0")
+                fint.write("MASTER=bond0")
 
         else:
             with open("/home/kanakin/testbond/" + interface[i], "a") as fint:
-                fint.writelines("MASTER=bond1   ")
+                fint.write("MASTER=bond1   ")
 
 
         if j == 2:
-            subprocess.call("cat /dev/null > /home/kanakin/testbond/bond0", shell=True) 
-            subprocess.call("(echo 'DEVICE=bond0' ; echo 'NAME=bond0' ; echo 'TYPE=Bond' ; echo 'BONDING_MASTER=yes' ; echo 'IPV6INIT=no' ; echo 'MTU=9216' ; echo 'ONBOOT=yes' ; echo 'USERCTL=no' ; echo 'NM_CONTROLLED=yes' ; echo 'BOOTPROTO=DHCP' ) >> /home/kanakin/testbond/bond0", shell=True)
-            opt1 = ("echo 'BONDING_OPTS=\"mode=802.3ad xmit_hash_policy=layer2+3 lacp_rate=1 miimon=100\"'  >> /home/kanakin/testbond/bond0")
-            subprocess.call(opt1 ,shell=True) 
+            #subprocess.call("cat /dev/null > /home/kanakin/testbond/bond0", shell=True)
+            with open("/home/kanakin/testbond/bond0", "w") as fbond:
+                fbond.write("DEVICE=bond0" + "\n" + "NAME=bond0" + "\n" + "TYPE=Bond" + "\n" + "BONDING_MASTER=yes" + "\n" + "IPV6INIT=no" + "\n" + "MTU=9216" + "\n" + "ONBOOT=yes" + "\n" + "USERCTL=no" + "\n" + "NM_CONTROLLED=yes" + "\n" + "BOOTPROTO=DHCP" + "\n" + "BONDING_OPTS=\"mode=802.3ad xmit_hash_policy=layer2+3 lacp_rate=1 miimon=100\"")
             #subprocess.call("ifup bond0",shell=True)
+        
         if j == 4:
-            subprocess.call("cat /dev/null > /home/kanakin/testbond/bond1", shell=True) 
-            subprocess.call("(echo 'DEVICE=bond1' ; echo 'NAME=bond1' ; echo 'TYPE=Bond' ; echo 'BONDING_MASTER=yes' ; echo 'IPV6INIT=no' ; echo 'MTU=9216' ; echo 'ONBOOT=yes' ; echo 'USERCTL=no' ; echo 'NM_CONTROLLED=yes' ; echo 'BOOTPROTO=DHCP' ) >> /home/kanakin/testbond/bond1", shell=True)
-            opt2 = ("echo 'BONDING_OPTS=\"mode=802.3ad xmit_hash_policy=layer2+3 lacp_rate=1 miimon=100\"'  >> /home/kanakin/testbond/bond1")
-            subprocess.call(opt2 ,shell=True) 
+            with open("/home/kanakin/testbond/bond1", "w") as fbond:
+                fbond.write("DEVICE=bond1" + "\n" + "NAME=bond1" + "\n" + "TYPE=Bond" + "\n" + "BONDING_MASTER=yes" + "\n" + "IPV6INIT=no" + "\n" + "MTU=9216" + "\n" + "ONBOOT=yes" + "\n" + "USERCTL=no" + "\n" + "NM_CONTROLLED=yes" + "\n" + "BOOTPROTO=DHCP" + "\n" + "BONDING_OPTS=\"mode=802.3ad xmit_hash_policy=layer2+3 lacp_rate=1 miimon=100\"")
+
             #subprocess.call("ifup bond1",shell=True)
 
 
