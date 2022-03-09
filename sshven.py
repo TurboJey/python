@@ -11,7 +11,6 @@ from getpass import getpass
 def ssh():
     user = (input("insert login: "))
     secret = getpass("insert password: ")
-    port = 22
 
     i=0
     try:
@@ -42,7 +41,7 @@ def ssh():
 
                     client = paramiko.SSHClient()
                     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                    client.connect(hostname=res2, username=user, password=secret, port=port) 
+                    client.connect(hostname=res2, username=user, password=secret, port=22) 
                     _stdin, stdout,_stderr = client.exec_command("cat /etc/network/interfaces") 
                     test=stdout.read().decode()
                     _stdin, stdout,_stderr = client.exec_command("ip a")
@@ -92,7 +91,12 @@ def ssh():
 
 
 def empty():
-    if (os.stat("/home/kanakin/test").st_size == 0 and os.stat("/home/kanakin/test2").st_size == 0): 
+    if os.path.exists("/home/kanakin/test") == False or os.path.exists("/home/kanakin/test") == False:
+        file = open("/home/kanakin/test", "w")
+        file2 = open("/home/kanakin/test2", "w")
+        file.close()
+        file2.close()
+    elif (os.stat("/home/kanakin/test").st_size == 0 and os.stat("/home/kanakin/test2").st_size == 0): 
         ssh()
         print("write files")
     elif (os.stat("/home/kanakin/test").st_size != 0 and os.stat("/home/kanakin/test2").st_size != 0):
