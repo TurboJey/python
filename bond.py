@@ -14,13 +14,9 @@ if interface != "none":
     j = 1
     while i < len(interface):
         print(interface[i])
-        if os.path.exists("/home/kanakin/testbond/" + interface[i]) == False:
-            file = open("/home/kanakin/testbond/" + interface[i], "w")
-            file.close()
-        else:
-            file = open("/home/kanakin/testbond/" + interface[i], "w")
-            file.write("")
-            file.close()
+        file = open("/home/kanakin/testbond/" + interface[i], "w")
+        file.close()
+
         #subprocess.call("cat /dev/null > /home/kanakin/testbond/" + interface[i], shell=True)
         with open("/home/kanakin/testbond/" + interface[i], "a") as fint:
             fint.write("MTU = 9216" + "\n" + "TYPE=Ethernet" + "\n" + "PROXY_METHOD=none" + "\n" + "BROWSER_ONLY=no" + "\n" + "DEVICE=" + interface[i] + "\n" + "NAME=slave" + str(j) + "\n" + "BOOTPROTO=none" + "\n" + "SLAVE=yes" + "\n" + "NM_CONTROLLED=yes" + "\n" + "ONBOOT=yes" + "\n")
