@@ -14,6 +14,7 @@ if interface != "none":
     j = 1
     while i < len(interface):
         print(interface[i])
+
         file = open("/home/kanakin/testbond/" + interface[i], "w")
         file.close()
 
