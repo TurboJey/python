@@ -11,7 +11,7 @@ from getpass import getpass
 def ssh():
     user = (input("insert login: "))
     secret = getpass("insert password: ")
-    port = ("22")
+    port = 22
 
     i=0
     try:
@@ -43,7 +43,7 @@ def ssh():
                     client = paramiko.SSHClient()
                     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                     client.connect(hostname=res2, username=user, password=secret, port=port) 
-                    _stdin, stdout,_stderr = client.exec_command("cat /etc/network/interfaces")
+                    _stdin, stdout,_stderr = client.exec_command("cat /etc/network/interfaces") 
                     test=stdout.read().decode()
                     _stdin, stdout,_stderr = client.exec_command("ip a")
                     test2=stdout.read().decode()
