@@ -1,8 +1,10 @@
-import re
-import os
+from encodings import utf_8
+from readline import insert_text
 import subprocess
-import pymysql
+from scp import SCPClient
+import os
 import paramiko
+import re
 from getpass import getpass
 """
 def vend():
@@ -51,15 +53,19 @@ while True:
         #test2=stdout.read().decode()
         client.close()
     except:
-        print("ssh not connect, wrong login or password")
-        user = (input("insert login: "))
-        secret = getpass("insert password: ")
-
+        print("ssh not cfrom encodings import utf_8
+from readline import insert_text
+import subprocess
+from scp import SCPClient
+import os
+import paramiko
+import re
+from getpass import getpass
         
     else:
         print("ssh connect")
         break
-    """
+    
 db = pymysql.connect(host="localhost",
                         user="admin",
                         passwd="123",
@@ -68,3 +74,15 @@ cur = db.cursor()
 cur.execute("select count(*) from ip")
 cn = cur.fetchone()
 print(cn[0])    
+"""
+hostname = "192.168.225.128"
+user = "root"
+secret = "123"
+
+client = paramiko.SSHClient()
+client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+client.connect(hostname=hostname, username=user, password=secret, port=22) 
+_stdin, stdout,_stderr = client.exec_command("ip -o link show | awk -F': ' '{print $2}' | grep 'enp[0-9]\|ens[0-9]' | uniq -w4 -D")
+test=stdout.read().decode()
+client.close()
+print(test)
