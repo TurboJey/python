@@ -91,12 +91,11 @@ def ssh():
 
 
 def empty():
-    if os.path.exists("/home/kanakin/test") == False or os.path.exists("/home/kanakin/test") == False:
+    if (os.path.exists("/home/kanakin/test") == False or os.path.exists("/home/kanakin/test") == False) or (os.stat("/home/kanakin/test").st_size == 0 and os.stat("/home/kanakin/test2").st_size == 0):
         file = open("/home/kanakin/test", "w")
         file2 = open("/home/kanakin/test2", "w")
         file.close()
         file2.close()
-    elif (os.stat("/home/kanakin/test").st_size == 0 and os.stat("/home/kanakin/test2").st_size == 0): 
         ssh()
         print("write files")
     elif (os.stat("/home/kanakin/test").st_size != 0 and os.stat("/home/kanakin/test2").st_size != 0):
