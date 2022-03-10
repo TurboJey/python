@@ -67,4 +67,4 @@ db = pymysql.connect(host="localhost",
 cur = db.cursor()
 cur.execute("select count(*) from ip")
 cn = cur.fetchone()
-print(cn[0])
+print(cn[0])    
