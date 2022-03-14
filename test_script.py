@@ -94,7 +94,7 @@ print(cn[0])
 user = "root"
 secret = "123"
 i = 0
-
+ii = 0
 db = pymysql.connect(host="localhost",
                 user="admin",
                 passwd="123",
@@ -113,7 +113,37 @@ while i < cn[0]:
     client.connect(hostname=ip, username=user, password=secret, port=22) 
     _stdin, stdout,_stderr = client.exec_command("ip -o link show | awk -F': ' '{print $2}' | grep 'enp[0-9]\|ens[0-9]' | uniq -w4 -D")
     test=stdout.read().decode()
-    test = test.split()
+    interface = test.split()
     client.close()
-    print(test)
+    while ii < len(interface):
+        file = open("/home/kanakin/testbond/" + interface[ii], "w")
+        file.close()
+
+        #subprocess.call("cat /dev/null > /home/kanakin/testbond/" + interface[i], shell=True)
+        with open("/home/kanakin/testbond/" + interface[ii], "a") as fint:
+            fint.write("MTU = 9216" + "\n" + "TYPE=Ethernet" + "\n" + "PROXY_METHOD=none" + "\n" + "BROWSER_ONLY=no" + "\n" + "DEVICE=" + interface[ii] + "\n" + "NAME=slave" + str(j) + "\n" + "BOOTPROTO=none" + "\n" + "SLAVE=yes" + "\n" + "NM_CONTROLLED=yes" + "\n" + "ONBOOT=yes" + "\n")
+
+        if (j == 1  or j == 2):
+            with open("/home/kanakin/testbond/" + interface[ii], "a") as fint:
+                fint.write("MASTER=bond0")
+
+        else:
+            with open("/home/kanakin/testbond/" + interface[ii], "a") as fint:
+                fint.write("MASTER=bond1   ")
+
+        p = subprocess.Popen(["sshpass","-p", "123", "scp", "-r","/home/kanakin/testbond/" + interface[ii], "root@"+ip+":/home/user/"])
+        if j == 2:
+            #subprocess.call("cat /dev/null > /home/kanakin/testbond/bond0", shell=True)
+            with open("/home/kanakin/testbond/bond0", "w") as fbond:
+                fbond.write("DEVICE=bond0" + "\n" + "NAME=bond0" + "\n" + "TYPE=Bond" + "\n" + "BONDING_MASTER=yes" + "\n" + "IPV6INIT=no" + "\n" + "MTU=9216" + "\n" + "ONBOOT=yes" + "\n" + "USERCTL=no" + "\n" + "NM_CONTROLLED=yes" + "\n" + "BOOTPROTO=DHCP" + "\n" + "BONDING_OPTS=\"mode=802.3ad xmit_hash_policy=layer2+3 lacp_rate=1 miimon=100\"")
+            #subprocess.call("ifup bond0",shell=True)
+            p = subprocess.Popen(["sshpass","-p","123", "scp", "-r","/home/kanakin/testbond/bond0", "root@"+ip+":/home/user/"])
+        
+        if j == 4:
+            with open("/home/kanakin/testbond/bond1", "w") as fbond:
+                fbond.write("DEVICE=bond1" + "\n" + "NAME=bond1" + "\n" + "TYPE=Bond" + "\n" + "BONDING_MASTER=yes" + "\n" + "IPV6INIT=no" + "\n" + "MTU=9216" + "\n" + "ONBOOT=yes" + "\n" + "USERCTL=no" + "\n" + "NM_CONTROLLED=yes" + "\n" + "BOOTPROTO=DHCP" + "\n" + "BONDING_OPTS=\"mode=802.3ad xmit_hash_policy=layer2+3 lacp_rate=1 miimon=100\"")
+            p = subprocess.Popen(["sshpass","-p","123", "scp", "-r","/home/kanakin/testbond/bond1", "root@"+ip+":/home/user/"])
+            #subprocess.call("ifup bond1",shell=True)
+        ii = ii + 1
+    #print(test)
     i = i + 1
