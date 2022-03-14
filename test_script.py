@@ -93,31 +93,27 @@ print(cn[0])
 #hostname = "192.168.225.128"
 user = "root"
 secret = "123"
-i = 1
-try:
-    db = pymysql.connect(host="localhost",
-                    user="admin",
-                    passwd="123",
-                    db="ipadd")
-    cur = db.cursor()
-    cur.execute("select count(*) from ip")
-    cn = cur.fetchone()
-except:
-    #print("Something went wrong vs database")
-    er = subprocess.call("systemctl status mariadb.service", shell=True)
-    print(er) 
+i = 0
 
-else:
-    while i < cn[0]:
-        j = str(i)
-        cur.execute('select ip from ip where id = "' + j + '"')
-        ip = cur.fetchone()
-        ip = ip[0]
-        client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(hostname=ip, username=user, password=secret, port=22) 
-        _stdin, stdout,_stderr = client.exec_command("ip -o link show | awk -F': ' '{print $2}' | grep 'enp[0-9]\|ens[0-9]' | uniq -w4 -D")
-        test=stdout.read().decode()
-        client.close()
-        print(test)
-        i + i + 1
+db = pymysql.connect(host="localhost",
+                user="admin",
+                passwd="123",
+                db="ipadd")
+cur = db.cursor()
+cur.execute("select count(*) from ip")
+cn = cur.fetchone()
+while i < cn[0]:
+    j = str(i + 1)
+    cur.execute('select ip from ip where id = "' + j + '"')
+    ip = cur.fetchone()
+    ip = ip[0]
+    print(ip)
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(hostname=ip, username=user, password=secret, port=22) 
+    _stdin, stdout,_stderr = client.exec_command("ip -o link show | awk -F': ' '{print $2}' | grep 'enp[0-9]\|ens[0-9]' | uniq -w4 -D")
+    test=stdout.read().decode()
+    test = test.split()
+    client.close()
+    print(test)
+    i = i + 1
