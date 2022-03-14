@@ -6,6 +6,7 @@ import os
 import paramiko
 import re
 from getpass import getpass
+import pymysql
 """
 def vend():
     cur = db.cursor()
@@ -66,7 +67,21 @@ from getpass import getpass
         print("ssh connect")
         break
     
-db = pymysql.connect(host="localhost",
+db = pymysql.connejj=str(ii)
+            cur.execute('select ip from ip where id='+ j) 
+            res = cur.fetchone()
+            #print (res)
+            res2 = res[0]
+            #print (res2)
+            while True:
+                try:
+
+                    client = paramiko.SSHClient()
+                    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                    client.connect(hostname=res2, username=user, password=secret, port=22)
+                except:
+                    print("somthing wrong whis ssh")
+                else:ct(host="localhost",
                         user="admin",
                         passwd="123",
                         db="ipadd")
@@ -75,14 +90,34 @@ cur.execute("select count(*) from ip")
 cn = cur.fetchone()
 print(cn[0])    
 """
-hostname = "192.168.225.128"
+#hostname = "192.168.225.128"
 user = "root"
 secret = "123"
+i = 1
+try:
+    db = pymysql.connect(host="localhost",
+                    user="admin",
+                    passwd="123",
+                    db="ipadd")
+    cur = db.cursor()
+    cur.execute("select count(*) from ip")
+    cn = cur.fetchone()
+except:
+    #print("Something went wrong vs database")
+    er = subprocess.call("systemctl status mariadb.service", shell=True)
+    print(er) 
 
-client = paramiko.SSHClient()
-client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-client.connect(hostname=hostname, username=user, password=secret, port=22) 
-_stdin, stdout,_stderr = client.exec_command("ip -o link show | awk -F': ' '{print $2}' | grep 'enp[0-9]\|ens[0-9]' | uniq -w4 -D")
-test=stdout.read().decode()
-client.close()
-print(test)
+else:
+    while i < cn[0]:
+        j = str(i)
+        cur.execute('select ip from ip where id = "' + j + '"')
+        ip = cur.fetchone()
+        ip = ip[0]
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(hostname=ip, username=user, password=secret, port=22) 
+        _stdin, stdout,_stderr = client.exec_command("ip -o link show | awk -F': ' '{print $2}' | grep 'enp[0-9]\|ens[0-9]' | uniq -w4 -D")
+        test=stdout.read().decode()
+        client.close()
+        print(test)
+        i + i + 1
