@@ -5,8 +5,8 @@ interface = pyipmi.interfaces.create_interface(interface='rmcp',
                                             host_target_address=0x20,
                                             keep_alive_interval=1)
 ipmi = pyipmi.create_connection(interface)
-ipmi.session.set_session_type_rmcp(host='10.2.0.67', port=623)
-ipmi.session.set_auth_type_user(username='root', password='admin')
+ipmi.session.set_session_type_rmcp(host='10.2.0.200', port=623)
+ipmi.session.set_auth_type_user(username='admin', password='cmb9.admin')
 ipmi.target = pyipmi.Target(ipmb_address=0x20)
 ipmi.session.establish()
 device_id = ipmi.get_device_id()
