@@ -119,11 +119,11 @@ while i < cn[0]:
         file = open("/home/kanakin/testbond/" + interface[ii], "w")
         file.close()
 
-        subprocess.call("cat /dev/null > /home/kanakin/testbond/" + interface[i], shell=True)
+        #subprocess.call("cat /dev/null > /home/kanakin/testbond/" + interface[i], shell=True)
         with open("/home/kanakin/testbond/" + interface[ii], "a") as fint:
             fint.write("MTU = 9216" + "\n" + "TYPE=Ethernet" + "\n" + "PROXY_METHOD=none" + "\n" + "BROWSER_ONLY=no" + "\n" + "DEVICE=" + interface[ii] + "\n" + "NAME=slave" + str(j) + "\n" + "BOOTPROTO=none" + "\n" + "SLAVE=yes" + "\n" + "NM_CONTROLLED=yes" + "\n" + "ONBOOT=yes" + "\n")
 
-        if (j == 1 or j == 2):
+        if (ii == 1 or ii == 2):
             with open("/home/kanakin/testbond/" + interface[ii], "a") as fint:
                 fint.write("MASTER=bond0")
 
@@ -132,14 +132,14 @@ while i < cn[0]:
                 fint.write("MASTER=bond1   ")
 
         p = subprocess.Popen(["sshpass","-p", "P@ssw0rd", "scp", "-r","/home/kanakin/testbond/" + interface[ii], "root@"+ip+":/home/user/"])
-        if j == 2:
+        if ii == 2:
             #subprocess.call("cat /dev/null > /home/kanakin/testbond/bond0", shell=True)
             with open("/home/kanakin/testbond/bond0", "w") as fbond:
                 fbond.write("DEVICE=bond0" + "\n" + "NAME=bond0" + "\n" + "TYPE=Bond" + "\n" + "BONDING_MASTER=yes" + "\n" + "IPV6INIT=no" + "\n" + "MTU=9216" + "\n" + "ONBOOT=yes" + "\n" + "USERCTL=no" + "\n" + "NM_CONTROLLED=yes" + "\n" + "BOOTPROTO=DHCP" + "\n" + "BONDING_OPTS=\"mode=802.3ad xmit_hash_policy=layer2+3 lacp_rate=1 miimon=100\"")
             #subprocess.call("ifup bond0",shell=True)
             p = subprocess.Popen(["sshpass","-p","P@ssw0rd", "scp", "-r","/home/kanakin/testbond/bond0", "root@"+ip+":/home/user/"])
         
-        if j == 4:
+        if ii == 4:
             with open("/home/kanakin/testbond/bond1", "w") as fbond:
                 fbond.write("DEVICE=bond1" + "\n" + "NAME=bond1" + "\n" + "TYPE=Bond" + "\n" + "BONDING_MASTER=yes" + "\n" + "IPV6INIT=no" + "\n" + "MTU=9216" + "\n" + "ONBOOT=yes" + "\n" + "USERCTL=no" + "\n" + "NM_CONTROLLED=yes" + "\n" + "BOOTPROTO=DHCP" + "\n" + "BONDING_OPTS=\"mode=802.3ad xmit_hash_policy=layer2+3 lacp_rate=1 miimon=100\"")
             p = subprocess.Popen(["sshpass","-p","P@ssw0rd", "scp", "-r","/home/kanakin/testbond/bond1", "root@"+ip+":/home/user/"])
