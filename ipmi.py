@@ -1,40 +1,60 @@
-import pyipmi
-from pyipmi import interfaces
-interface = pyipmi.interfaces.create_interface(interface='rmcp',
-                                            slave_address=0x81,
-                                            host_target_address=0x20,
-                                            keep_alive_interval=1)
-ipmi = pyipmi.create_connection(interface)
-ipmi.session.set_session_type_rmcp(host='10.2.0.200', port=623)
-ipmi.session.set_auth_type_user(username='admin', password='cmb9.admin')
-ipmi.target = pyipmi.Target(ipmb_address=0x20)
-ipmi.session.establish()
-device_id = ipmi.get_device_id()
-print('''
-Device ID: %(device_id)s
-Device Revision: %(revision)s
-Firmware Revision: %(fw_revision)s
-IPMI Version: %(ipmi_version)s
-Manufacturer ID: %(manufacturer_id)d (0x%(manufacturer_id)04x)
-Product ID: %(product_id)d (0x%(product_id)04x)
-Device Available: %(available)d
-Provides SDRs: %(provides_sdrs)d
-Additional Device Support:
-'''[1:-1] % device_id.__dict__)
-functions = (
-('SENSOR', 'Sensor Device'),
-('SDR_REPOSITORY', 'SDR Repository Device'),
-('SEL', 'SEL Device'),
-('FRU_INVENTORY', 'FRU Inventory Device'),
-('IPMB_EVENT_RECEIVER', 'IPMB Event Receiver'),
-('IPMB_EVENT_GENERATOR', 'IPMB Event Generator'),
-('BRIDGE', 'Bridge'),
-('CHASSIS', 'Chassis Device')
-)
-for n, s in functions:
-    if device_id.supports_function(n):
-        print(' %s' % s)
-    if device_id.aux is not None:
-        print('Aux Firmware Rev Info: [%s]' % (
-        ' '.join('0x%02x' % d for d in device_id.aux)))
-ipmi.session.close()
+from asyncio.subprocess import PIPE
+import subprocess
+import re
+import os
+from sys import stdout
+
+ 
+
+class Ipmi():
+    def chanel(self):
+        i = 1
+        while i < 10:
+            j = str(i)
+            ipmi = subprocess.Popen("ipmitool lan print " + j, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+            ipmi = ipmi.stdout.read().decode('utf-8')
+            spl = ipmi.splitlines()
+            self.num = j
+            for line in spl:
+                res = re.match("IP Address  ", str(line))
+                if res != None:
+                    print("ipmi use "+ self.num +" chanel")
+                    return(self.num)                
+            i = i + 1        
+
+    
+
+    def ip(self):
+        ipmi = subprocess.Popen("ipmitool lan print " + self.num, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        ipmi = ipmi.stdout.read().decode('utf-8')
+        spl = ipmi.splitlines()
+        for line in spl:
+            if re.match("IP Address  ", str(line)):
+                res = line.split(': ')
+                print(res[1])
+
+
+    def bmc_version(self):
+        ipmi = subprocess.Popen("ipmitool bmc info", shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        ipmi = ipmi.stdout.read().decode('utf-8')
+        spl = ipmi.splitlines()
+        for line in spl:
+            if re.match("IPMI Version", str(line)):
+                res = line.split(': ')
+                print(res[1])
+
+
+    def mac(self):
+        ipmi = subprocess.Popen("ipmitool lan print " + self.num, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        ipmi = ipmi.stdout.read().decode('utf-8')
+        spl = ipmi.splitlines()
+        for line in spl:
+            if re.match("MAC Address", str(line)):
+                res = line.split(': ')
+                print(res[1])
+
+main = Ipmi()
+main.chanel()
+main.ip()
+main.bmc_version()
+main.mac()
