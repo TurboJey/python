@@ -1,4 +1,4 @@
-from encodings import utf_8
+'''from encodings import utf_8
 from readline import insert_text
 import subprocess
 from scp import SCPClient
@@ -6,7 +6,7 @@ import os
 import paramiko
 import re
 from getpass import getpass
-import pymysql
+import pymysql'''
 """
 def vend():
     cur = db.cursor()
@@ -90,7 +90,7 @@ cur.execute("select count(*) from ip")
 cn = cur.fetchone()
 print(cn[0])    
 """
-#hostname = "192.168.225.128"
+'''#hostname = "192.168.225.128"
 user = "root"
 secret = "P@ssw0rd"
 i = 0
@@ -149,3 +149,83 @@ while i < cn[0]:
         num = num + 1
     #print(test)
     i = i + 1
+'''
+
+
+from asyncio.subprocess import PIPE
+import subprocess
+import re
+import os
+import sys
+from sys import stdout
+
+
+def chanel():
+    i = 1  
+    j = str(i)
+    ipmi = subprocess.Popen("ipmitool lan print 3", shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    streamdata = ipmi.communicate()[0]
+    rc = ipmi.returncode
+    if rc == 0:
+        ipmi = subprocess.Popen("ipmitool lan print " + j, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        ipmi = ipmi.stdout.read().decode()
+        spli = ipmi.splitlines()
+        for line in spli:
+            if re.match("IP Address  ", str(line)):
+                print("ipmi use "+ j +" chanel")
+                return(spli)
+    else:
+        print(streamdata)
+        print(rc)
+        sys.exit()
+    i = i + 1
+
+
+class Ipmi:
+
+
+    def __init__(self, spli):
+        self.chanel = spli
+        self._dictdata = {}
+        self._bmcdata = {}
+        self.data_processing()
+        self.bmc_data()
+        self.macadd = self.mac()
+        self.ipadd = self.ip()
+        self.bmc = self.bmc_ver()
+        
+
+    def data_processing(self):
+        for line in self.chanel:
+            res = line.split(':', 1)
+            self._dictdata.update({res[0].strip(): res[1].strip()})
+        del self._dictdata['']
+
+
+    def bmc_data(self):
+        ipmi = subprocess.Popen("ipmitool bmc info", shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        ipmi = ipmi.stdout.read().decode('utf-8')
+        spl = ipmi.splitlines()
+        for line in spl:
+            bmc = line.split(':', 1)
+            if len(bmc) == 2:    
+                self._bmcdata.update({bmc[0].strip(): bmc[1].strip()})
+    
+
+    def ip(self):
+        return self._dictdata['IP Address']
+
+
+    def mac(self):
+        return self._dictdata['MAC Address']
+
+
+    def bmc_ver(self):
+        return self._bmcdata['IPMI Version']
+
+    
+ch = chanel()
+ipmi = Ipmi(ch)
+print(ipmi.ipadd)
+print(ipmi.macadd)
+print(ipmi.bmc)

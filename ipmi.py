@@ -2,7 +2,10 @@ from asyncio.subprocess import PIPE
 import subprocess
 import re
 import os
+import sys
+import platform
 from sys import stdout
+import time
 
 
 def chanel():
@@ -10,12 +13,36 @@ def chanel():
     while i < 10:   
         j = str(i)
         ipmi = subprocess.Popen("ipmitool lan print " + j, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        ipmi = ipmi.stdout.read().decode()
-        spli = ipmi.splitlines()
-        for line in spli:
-            if re.match("IP Address  ", str(line)):
-                print("ipmi use "+ j +" chanel")
-                return(spli)
+        streamdata = ipmi.communicate()[0]
+        rc = ipmi.returncode
+        pl = os.uname()
+        if rc == 0:
+            ipmi = subprocess.Popen("ipmitool lan print " + j, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+            ipmi = ipmi.stdout.read().decode()
+            spli = ipmi.splitlines()
+            for line in spli:
+                if re.match("IP Address  ", str(line)):
+                    print("ipmi use "+ j +" chanel")
+                    return(spli)
+            i = i + 1
+        elif rc == 127:
+            print(rc)
+            print(streamdata)
+            #print('install ipmitool? y/n: ')
+            ins = (input('install ipmitool? y/n: '))
+            if ins == 'y' or ins == 'Y' or ins == '':
+                if 'Debian' in str(pl):
+                    subprocess.Popen('apt install ipmitool', shell = True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    time.sleep(3)
+                    chanel()
+            else:
+                print('goodbye')
+                sys.exit()
+        else:
+            print(streamdata)
+            print(rc)
+            sys.exit()
+        
 
 
 class Ipmi:
@@ -45,9 +72,7 @@ class Ipmi:
         spl = ipmi.splitlines()
         for line in spl:
             bmc = line.split(':', 1)
-            if len(bmc) == 1:
-                self._bmcdata.update({bmc[0].strip(): ' '})
-            elif len(bmc) == 2:    
+            if len(bmc) == 2:    
                 self._bmcdata.update({bmc[0].strip(): bmc[1].strip()})
     
 
