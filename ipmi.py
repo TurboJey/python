@@ -4,57 +4,67 @@ import re
 import os
 from sys import stdout
 
- 
 
-class Ipmi():
-    def chanel(self):
-        i = 1
-        while i < 10:
-            j = str(i)
-            ipmi = subprocess.Popen("ipmitool lan print " + j, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-            ipmi = ipmi.stdout.read().decode('utf-8')
-            spl = ipmi.splitlines()
-            self.num = j
-            for line in spl:
-                res = re.match("IP Address  ", str(line))
-                if res != None:
-                    print("ipmi use "+ self.num +" chanel")
-                    return(self.num)                
-            i = i + 1        
-
-    
-
-    def ip(self):
-        ipmi = subprocess.Popen("ipmitool lan print " + self.num, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        ipmi = ipmi.stdout.read().decode('utf-8')
-        spl = ipmi.splitlines()
-        for line in spl:
+def chanel():
+    i = 1
+    while i < 10:   
+        j = str(i)
+        ipmi = subprocess.Popen("ipmitool lan print " + j, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        ipmi = ipmi.stdout.read().decode()
+        spli = ipmi.splitlines()
+        for line in spli:
             if re.match("IP Address  ", str(line)):
-                res = line.split(': ')
-                print(res[1])
+                print("ipmi use "+ j +" chanel")
+                return(spli)
 
 
-    def bmc_version(self):
+class Ipmi:
+
+
+    def __init__(self, spli):
+        self.chanel = spli
+        self._dictdata = {}
+        self._bmcdata = {}
+        self.data_processing()
+        self.bmc_data()
+        self.macadd = self.mac()
+        self.ipadd = self.ip()
+        self.bmc = self.bmc_ver()
+        
+
+    def data_processing(self):
+        for line in self.chanel:
+            res = line.split(':', 1)
+            self._dictdata.update({res[0].strip(): res[1].strip()})
+        del self._dictdata['']
+
+
+    def bmc_data(self):
         ipmi = subprocess.Popen("ipmitool bmc info", shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         ipmi = ipmi.stdout.read().decode('utf-8')
         spl = ipmi.splitlines()
         for line in spl:
-            if re.match("IPMI Version", str(line)):
-                res = line.split(': ')
-                print(res[1])
+            bmc = line.split(':', 1)
+            if len(bmc) == 1:
+                self._bmcdata.update({bmc[0].strip(): ' '})
+            elif len(bmc) == 2:    
+                self._bmcdata.update({bmc[0].strip(): bmc[1].strip()})
+    
+
+    def ip(self):
+        return self._dictdata['IP Address']
 
 
     def mac(self):
-        ipmi = subprocess.Popen("ipmitool lan print " + self.num, shell = True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        ipmi = ipmi.stdout.read().decode('utf-8')
-        spl = ipmi.splitlines()
-        for line in spl:
-            if re.match("MAC Address", str(line)):
-                res = line.split(': ')
-                print(res[1])
+        return self._dictdata['MAC Address']
 
-main = Ipmi()
-main.chanel()
-main.ip()
-main.bmc_version()
-main.mac()
+
+    def bmc_ver(self):
+        return self._bmcdata['IPMI Version']
+
+    
+ch = chanel()
+ipmi = Ipmi(ch)
+print(ipmi.ipadd)
+print(ipmi.macadd)
+print(ipmi.bmc)
